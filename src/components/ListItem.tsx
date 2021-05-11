@@ -7,6 +7,7 @@ interface ListItemProps {
   title: string;
   listTodo: TodoType[];
   handleTransfer: (id: string, isDelete?: boolean) => void;
+  setTodos: any;
 }
 
 class ListItem extends React.Component<ListItemProps> {
@@ -16,30 +17,22 @@ class ListItem extends React.Component<ListItemProps> {
 
   render() {
     return (
-      <div className={`todo__list list--${this.props.title.toLowerCase()}`}>
+      <div 
+        className={`todo__list list--${this.props.title.toLowerCase()}`}
+      >
         <h3>{this.props.title}</h3>
-        <Droppable droppableId={`drop-${this.props.title}`}>
+        <Droppable droppableId={this.props.title.toLowerCase()}>
           {(provided, snapshot) => (
             <div
               ref={provided.innerRef}
             >
               {this.props.listTodo.map((item, idx) => (
-                  <Draggable 
-                    key={item.id} 
-                    draggableId={item.id} 
-                    index={idx}
-                  >
-                    {(provided, snapshot) => (
                       <CardTodo
-                        //@ts-ignore
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
+                        key={item.id}
                         item={item}
+                        index={idx}
                         handleTransfer={this.props.handleTransfer}
                       />
-                    )}
-                  </Draggable>
                 ))}
                 {provided.placeholder}
             </div>

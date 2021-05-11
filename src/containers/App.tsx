@@ -29,43 +29,71 @@ const App = () => {
     }
   };
 
-  const onDragEnd = (result: any) => {
-    const { source, destination } = result;
+  const itemDrag = (draggableId: string) => {
+    const idx = todos.findIndex((todo: TodoType) => todo.id === draggableId);
+    // if (idx >= 0) {
+      const item = todos[idx];
+      return [idx, item];
+    // }
+    // return undefined;
+  }
 
+  const findNewIndex = (destination: any, newList: TodoType[]): number => {
+    if (!destination.index) {
+      return 0;
+    }
+
+    let idxDrag = destination.index;
+    let newIdx = -1;
+    for (let i = 0; i < newList.length; i++) {
+      if (newList[i].state === destination.droppableId) {
+        console.log('b'); 
+        if (!--idxDrag) {
+          newIdx = i + 1;
+          break;
+        }
+      }
+    }
+    return newIdx;
+  }
+
+  const handleDragEnd = (result: any) => {
+    const { draggableId, source, destination } = result;
+    
     if (!destination) {
       return;
     }
-
-    if (source.droppableId === destination.droppableId) {
-      // const items = 
-    }
+    
+    const [idx, item] = itemDrag(draggableId);
+    const newList = [...todos];
+    newList.splice(idx, 1);
+    
+    newList.splice(findNewIndex(destination, newList), 0, {...item, state: destination.droppableId});
+    console.log('todos', todos);
+    console.log("newList", newList);
+    setTodos(newList);
   }
 
   return (
     <div className="App">
       <h1 className="title">Todo List</h1>
       <NewTodo />
-      <DragDropContext onDragEnd={onDragEnd}>
+      <DragDropContext onDragEnd={handleDragEnd}>
         <div className="container-todo">
-          {states.map((state) => {
+          {states.map((state: string) => {
             const listItem = todos
               ? todos.filter(
                   (todo: TodoType) => todo.state === state.toLowerCase()
                 )
               : [];
             return (
-              // <Droppable droppableId={`drop-${state}`}>
-                // {(provided: any) => (
                   <ListItem
                   key={state}
                   title={state}
                   listTodo={listItem}
                   handleTransfer={handleTransfer}
-                  // {...provided.dropableProps}
-                  // ref={provided.innerRef}
+                  setTodos={setTodos}
                 />
-                // )}
-              // {/* </Droppable> */}
             );
           })}
         </div>
